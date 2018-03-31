@@ -15,7 +15,13 @@ const MyMapComponent = withScriptjs(withGoogleMap((props) =>
     {
         props.squares.map((item, index )=>{
             return(
-                <Polygon key={index} paths={[item.topLeft, item.topRight, item.bottomRight, item.bottomLeft]}/>
+                <Polygon
+                 key={index} paths={[item.topLeft, item.topRight, item.bottomRight, item.bottomLeft]}
+                 options={{
+                     fillColor:'red',
+                     strokeWeight:'0.1'
+                 }}
+                 />
             )
         })
     }
@@ -60,6 +66,22 @@ export default class Home extends Base{
             squares: squares,
             squares2D: squares2D
         }
+       // this.getSquares();
+    }
+    getSquares = ()=>{
+        fetch('http://127.0.0.1:3000/location').then((result)=>{
+            return result.json();
+        }).then((data)=>{
+          let squares = data.squares;
+          this.setState({
+            ...this.state,
+            squares:squares,
+            squares2D:this.convertTo2Darray(squares)
+          })
+        }).catch((e)=>{
+          console.log(e)
+        });
+
     }
     divideSquares = ()=>{
         let point = topLeft;
