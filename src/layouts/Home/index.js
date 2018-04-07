@@ -13,12 +13,12 @@ const MyMapComponent = withScriptjs(withGoogleMap((props) =>
     {props.isMarkerShown && <Marker position={{ lat: props.region.lat, lng: props.region.lng  }} />}
     <Polygon paths={props.paths}/>
     {
-        props.squares.map((item, index )=>{
+        props.squares.map((item, index )=>{''
             return(
                 <Polygon
                  key={index} paths={[item.topLeft, item.topRight, item.bottomRight, item.bottomLeft]}
                  options={{
-                     fillColor:'red',
+                     fillColor:`rgba(${item.count*8}, ${255-item.count}, 0, 0.8)`,
                      strokeWeight:'0.1'
                  }}
                  />
@@ -57,26 +57,47 @@ export default class Home extends Base{
     constructor(props){
         super(props);
         let squares = this.divideSquares();
-        let squares2D = this.convertTo2Darray(squares);
+       // let squares2D = this.convertTo2Darray(squares);
         this.state ={
             region:{
                 lat: 21.1096719,
                 lng: 105.7260039
             },
-            squares: squares,
-            squares2D: squares2D
+            squares: [],
         }
-       // this.getSquares();
+    }
+    componentDidMount(){
+        this.getSquares();
     }
     getSquares = ()=>{
         fetch('http://127.0.0.1:3000/location').then((result)=>{
             return result.json();
         }).then((data)=>{
           let squares = data.squares;
+          squares = squares.map((item)=>{
+              return{
+                  topLeft: {
+                      lat: item.topLeft.latitude,
+                      lng: item.topLeft.longitude
+                  },
+                  topRight:{
+                    lat: item.topRight.latitude,
+                    lng: item.topRight.longitude
+                },
+                bottomRight:{
+                    lat: item.bottomRight.latitude,
+                    lng: item.bottomRight.longitude
+                },
+                bottomLeft:{
+                    lat: item.bottomLeft.latitude,
+                    lng: item.bottomLeft.longitude
+                },
+                count: item.count
+              }
+          })
           this.setState({
             ...this.state,
-            squares:squares,
-            squares2D:this.convertTo2Darray(squares)
+            squares:squares
           })
         }).catch((e)=>{
           console.log(e)
@@ -195,9 +216,9 @@ export default class Home extends Base{
         return(
             <div>
                 <Row>
-                    <Col span={6}>
+                    {/* <Col span={6}>
                         <List squares2D={this.state.squares2D} renderRow={this.renderRow} />
-                    </Col>
+                    </Col> */}
                     <Col span={18}>
                         <MyMapComponent
                             isMarkerShown
