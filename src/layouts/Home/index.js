@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
 import { withGoogleMap, GoogleMap, Marker ,withScriptjs, Polygon} from "react-google-maps"
 import Base from '../Base';
-import {Row, Col, Button} from 'antd';
+import {Row, Col, Button, DatePicker, TimePicker, Popover} from 'antd';
 import { deltaLat, deltaLng, topLeft, topRight, bottomLeft, bottomRight} from '../../config';
+import moment from 'moment';
 
 const MyMapComponent = withScriptjs(withGoogleMap((props) =>
   <GoogleMap
     defaultZoom={15}
     defaultCenter={{ lat: props.region.lat, lng: props.region.lng }}
-    center={{ lat: props.region.lat, lng: props.region.lng }}
   >
     {props.isMarkerShown && <Marker position={{ lat: props.region.lat, lng: props.region.lng  }} />}
     <Polygon paths={props.paths}/>
@@ -18,8 +18,16 @@ const MyMapComponent = withScriptjs(withGoogleMap((props) =>
                 <Polygon
                  key={index} paths={[item.topLeft, item.topRight, item.bottomRight, item.bottomLeft]}
                  options={{
-                     fillColor:`rgba(${item.count*8}, ${255-item.count}, 0, 0.8)`,
+                     fillColor:`rgba(${255}, ${0}, 0, 0.8)`,
                      strokeWeight:'0.1'
+                 }}
+                //  onClick={(e)=>{
+                //      props.hover(index),
+                //      console.log('in', index)
+                //  }}
+                 onMouseOver={(e)=>{
+                    console.log('over', index);
+                    props.hover(index);
                  }}
                  />
             )
@@ -28,51 +36,61 @@ const MyMapComponent = withScriptjs(withGoogleMap((props) =>
   </GoogleMap>
 ))
 
-class List extends Component{
-    render(){
-        console.log('render')
-        return(
-            <div style={{
-                height:'600px',
-                overflowY:'auto',
-                margin:10
-            }}>
-                {
-                    this.props.squares2D.map((item,index)=>{
-                        return(
-                            this.props.renderRow(item)
-                        )
-                    })
-                }
-            </div>
-        );
-    }
-    shouldComponentUpdate(){
-        return false;
-    }
-}
+
 
 
 export default class Home extends Base{
     constructor(props){
         super(props);
-        let squares = this.divideSquares();
        // let squares2D = this.convertTo2Darray(squares);
+       let now = new Date();
         this.state ={
             region:{
                 lat: 21.1096719,
                 lng: 105.7260039
             },
             squares: [],
+            date : moment(`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`, 'YYYY-MM-DD'),
+            time: moment(`${now.getHours()}:${now.getMinutes()}`, 'HH:mm'),
+            infor: -1
         }
     }
     componentDidMount(){
         this.getSquares();
     }
+    hover = (index)=>{
+        this.setState({
+            ...this.state,
+            infor:index
+        })
+    }
     getSquares = ()=>{
-        fetch('http://127.0.0.1:3000/location').then((result)=>{
+        console.log(this.state.date.date())
+        fetch('http://127.0.0.1:3000/density', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                year: this.state.date.year(),
+                month: this.state.date.month(),
+                date:this.state.date.date(),
+                hour: this.state.time.hour(),
+                minute: this.state.time.minute()
+            })
+        }).then((result)=>{
             return result.json();
         }).then((data)=>{
+            console.log(data)
+            if(data.status === 1002){
+                alert('Không có dữ liệu');
+                return;
+            }
+            if(data.status === 1001){
+                alert('Lỗi hệt thống!');
+                return;
+            }
           let squares = data.squares;
           squares = squares.map((item)=>{
               return{
@@ -104,122 +122,45 @@ export default class Home extends Base{
         });
 
     }
-    divideSquares = ()=>{
-        let point = topLeft;
-        let squares = [];
-        let unitLat = deltaLat/23.0;
-        let unitLng = deltaLng/56.0;
-        
-        for ( let i = 0 ; i< 23; i++){
-            for ( let j = 0 ; j < 56 ;j++){
-                let topLeft = {
-                    lng:point.lng + unitLng*j,
-                    lat:point.lat - unitLat*i
-                };
-                let topRight = {
-                    lng: topLeft.lng + unitLng,
-                    lat: topLeft.lat
-                };
-                let bottomRight = {
-                    lng: topRight.lng,
-                    lat: topRight.lat - unitLat
-                };
-                let bottomLeft = {
-                    lng: bottomRight.lng - unitLng,
-                    lat:bottomRight.lat
-                }
-                squares.push({
-                    topLeft: topLeft,
-                    topRight:topRight,
-                    bottomRight:bottomRight,
-                    bottomLeft:bottomLeft
-                });      
-            }
-        }
-        return squares
-            
-    }
-    convertTo2Darray(squares){
-        let length = squares.length;
-        let newList = [];
-        for (let i = 0; i< length ; i+=2 ){
-            newList.push({
-                one:{
-                    index:i+1,
-                    data:squares[i]
-                },
-                two:{
-                    index:i+2,
-                    data:squares[i+1]
-                }
-            })
-        }
-        return newList
-
-    }
-    onClickItem = (data)=>{
-        this.setState({
-            ...this.state,
-            region:{
-                lat:(data.topLeft.lat + data.topRight.lat +data.bottomRight.lat +data.bottomLeft.lat)/4.0,
-                lng:(data.topLeft.lng + data.topRight.lng + data.bottomRight.lng +data.bottomLeft.lng)/4.0
-            }
-        })
-
-    }
-    renderRow = (data)=>{
-        return(
-            <Row key={data.one.index}>
-                <Col span={12}>
-                    <Button style={{
-                        width:'100%',
-                        margin:5
-                    }} type="primary"
-                    onClick={(e)=>{
-                        this.onClickItem(data.one.data)
-
-                    }}
-                    >{data.one.index}</Button>
-                </Col>
-                <Col span={12}>
-                    <Button style={{
-                        width:'100%',
-                        margin:5
-                    }} type="primary"
-                    onClick={(e)=>{
-                        this.onClickItem(data.two.data)
-                    }}
-                    >{data.two.index}</Button>
-                </Col>
-            </Row>
-        )
-    }
-    renderList = ()=>{
-        return(
-            <div style={{
-                height:'600px',
-                overflowY:'auto',
-                margin:10
-            }}>
-                {
-                    this.state.squares2D.map((item,index)=>{
-                        return(
-                            this.renderRow(item)
-                        )
-                    })
-                }
-            </div>
-        );
-                
-    }
     renderContent(){
         return(
             <div>
                 <Row>
-                    {/* <Col span={6}>
-                        <List squares2D={this.state.squares2D} renderRow={this.renderRow} />
-                    </Col> */}
+            
                     <Col span={18}>
+                        <DatePicker 
+                            defaultValue={this.state.date}
+                            onChange={(e)=>{
+                            let date = e.date();
+                            let month = e.month();
+                            let year = e.year();
+                            this.setState({
+                                ...this.state,
+                                date:  moment(`${year}-${month+1}-${date}`, 'YYYY-MM-DD'),
+                            })
+                            setTimeout(()=>{
+                                this.getSquares();
+
+                            },0)
+                            console.log(date, month, year)
+                        }}  format={'DD/MM/YY'} />
+                        <TimePicker 
+                            defaultValue={this.state.time} 
+                            format={'HH:mm'}
+                            onChange={(e)=>{
+                                let hour = e.hour();
+                                let minute = e.minute();
+                                this.setState({
+                                    ...this.state,
+                                    time: moment(`${hour}:${minute}`, 'HH:mm')
+                                })
+                                setTimeout(()=>{
+                                    this.getSquares();
+    
+                                },0)
+                                console.log(hour, minute)
+                            }} 
+                        />
                         <MyMapComponent
                             isMarkerShown
                             googleMapURL="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places"
@@ -229,7 +170,28 @@ export default class Home extends Base{
                             paths={[topLeft, topRight, bottomRight, bottomLeft]}
                             squares={this.state.squares}
                             region={this.state.region}
+                            hover={this.hover}
                         />
+                    </Col>
+                     <Col span={2}>
+                        {
+                            this.state.infor !==-1?(
+                                <Popover visible={true} content={(
+                                    <p>
+                                        position:<br/>
+                                        +lat:{this.state.squares[this.state.infor].topLeft.lat}<br/>
+                                        +lng:{this.state.squares[this.state.infor].topLeft.lng}<br/>
+                                    </p>
+                                )} title="Thông tin vị trí">
+                                    <Button onClick={(e)=>{
+                                        this.setState({
+                                            ...this.state,
+                                            infor:-1
+                                        })
+                                    }} type="primary">Hidden infor</Button>
+                                </Popover>
+                            ):null
+                        }
                     </Col>
                 </Row>
             </div>
