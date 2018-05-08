@@ -18,7 +18,7 @@ const MyMapComponent = withScriptjs(withGoogleMap((props) =>
                 <Polygon
                  key={index} paths={[item.topLeft, item.topRight, item.bottomRight, item.bottomLeft]}
                  options={{
-                     fillColor:`rgba(${255}, ${0}, 0, 0.8)`,
+                     fillColor:`rgba(${255}, ${255 - (item.count > 10 ?(200+item.count) :item.count)}, 0, 0.8)`,
                      strokeWeight:'0.1'
                  }}
                 //  onClick={(e)=>{
@@ -110,7 +110,8 @@ export default class Home extends Base{
                     lat: item.bottomLeft.latitude,
                     lng: item.bottomLeft.longitude
                 },
-                count: item.count
+                count: item.count,
+                speed: item.speed
               }
           })
           this.setState({
@@ -181,6 +182,8 @@ export default class Home extends Base{
                                         position:<br/>
                                         +lat:{this.state.squares[this.state.infor].topLeft.lat}<br/>
                                         +lng:{this.state.squares[this.state.infor].topLeft.lng}<br/>
+                                        +count:{this.state.squares[this.state.infor].count}<br/>
+                                        +speed:{this.state.squares[this.state.infor].speed}
                                     </p>
                                 )} title="Thông tin vị trí">
                                     <Button onClick={(e)=>{
