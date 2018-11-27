@@ -168,7 +168,7 @@ export default class Home extends Base{
                         />
                         <MyMapComponent
                             isMarkerShown
-                            googleMapURL="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places"
+                            googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9mxstBQCo75o1-rkeMA6GwwQVCzAdveo&v=3.exp&libraries=geometry,drawing,places"
                             loadingElement={<div style={{ height: `100%` }} />}
                             containerElement={<div style={{ height: `600px`,margin:10,  width:'100%' }} />}
                             mapElement={<div style={{ height: `100%` }} />}
