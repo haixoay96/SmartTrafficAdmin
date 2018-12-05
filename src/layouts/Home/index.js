@@ -47,8 +47,8 @@ export default class Home extends Base{
        let now = new Date();
         this.state ={
             region:{
-                lat: 21.1096719,
-                lng: 105.7260039
+                lat: 21.094498264,
+                lng: 105.80392105333334
             },
             squares: [],
             date : moment(`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`, 'YYYY-MM-DD'),
