@@ -18,7 +18,7 @@ const MyMapComponent = withScriptjs(withGoogleMap((props) =>
                 <Polygon
                  key={index} paths={[item.topLeft, item.topRight, item.bottomRight, item.bottomLeft]}
                  options={{
-                     fillColor:`rgba(${(item.count/5)*255 },${255}, 0, 0.8)`,
+                     fillColor:`rgba(${(item.count*5/5)*255 },${255}, 0, 0.8)`,
                      strokeWeight:'0.01'
                  }}
                 //  onClick={(e)=>{
