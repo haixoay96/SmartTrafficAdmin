@@ -42,10 +42,7 @@ const MyMapComponent = withScriptjs(withGoogleMap((props) =>
 export default class Home extends Base{
     constructor(props){
         super(props);
-        let isLogin = localStorage.getItem('isLogin');
-        if(!isLogin){
-            this.props.history.push('/login');
-        }
+      
        // let squares2D = this.convertTo2Darray(squares);
        let now = new Date();
         this.state ={
@@ -60,6 +57,11 @@ export default class Home extends Base{
         }
     }
     componentDidMount(){
+        let isLogin = localStorage.getItem('isLogin');
+        if(!isLogin){
+            this.props.history.push('/login');
+            return;
+        }
         this.getSquares();
     }
     hover = (index)=>{

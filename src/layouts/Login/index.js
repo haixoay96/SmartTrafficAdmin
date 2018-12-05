@@ -6,10 +6,7 @@ import {Row, Col, Button, DatePicker, TimePicker, Popover, Input} from 'antd';
 export default class Login extends Base{
     constructor(props){
         super(props);
-        let isLogin = localStorage.getItem('isLogin');
-        if(isLogin){
-            this.props.history.push('/');
-        }
+        
         this.state = {
             username: '',
             password: ''
@@ -23,14 +20,20 @@ export default class Login extends Base{
         if(this.state.username === 'admin' && this.state.password === 'admin'){
             setTimeout(()=>{
                 alert('thanh cong')
-                this.props.history.push('/');
                 localStorage.setItem('isLogin', true);
+                this.props.history.push('/');
             },500);
             return;
         }
         setTimeout(()=>{
             alert('Sai username hoặc password!');
         },500);
+    }
+    componentDidMount(){
+        let isLogin = localStorage.getItem('isLogin');
+        if(isLogin){
+            this.props.history.push('/');
+        }
     }
     renderContent(){
         return(
