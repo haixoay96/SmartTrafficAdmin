@@ -42,6 +42,10 @@ const MyMapComponent = withScriptjs(withGoogleMap((props) =>
 export default class Home extends Base{
     constructor(props){
         super(props);
+        let isLogin = localStorage.getItem('isLogin');
+        if(!isLogin){
+            this.props.history.push('/login');
+        }
        // let squares2D = this.convertTo2Darray(squares);
        let now = new Date();
         this.state ={
