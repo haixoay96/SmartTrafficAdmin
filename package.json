@@ -2,7 +2,6 @@
   "name": "smarttrafficadmin",
   "version": "0.1.0",
   "private": true,
-  "homepage" : "http://haixoay96.github.io/SmartTrafficAdmin",
   "dependencies": {
     "antd": "^3.3.1",
     "moment": "^2.22.1",
