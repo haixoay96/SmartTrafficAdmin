@@ -11,7 +11,7 @@ export default class Admin extends Base{
         }
     }
     componentDidMount(){
-        fetch('http://127.0.0.1:3000/user').then((result)=>{
+        fetch('http://128.199.90.9:3000/user').then((result)=>{
             return result.json()
         }).then((data)=>{
             if(data.status === 1000){

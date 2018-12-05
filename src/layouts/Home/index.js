@@ -70,7 +70,7 @@ export default class Home extends Base{
     }
     getSquares = ()=>{
         console.log(this.state.date.date())
-        fetch('http://127.0.0.1:3000/density', {
+        fetch('http://128.199.90.9:3000/density', {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
